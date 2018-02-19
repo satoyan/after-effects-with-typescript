@@ -1,0 +1,21 @@
+{
+  "name": "extend-script-with-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "~1.6.1",
+    "types-for-adobe": "github:pravdomil/types-for-adobe",
+    "typescript": "~2.7.2",
+    "extendscript-es5-shim-ts": "~0.0.1",
+    "underscore": "~1.8.3",
+    "@types/underscore": "1.8.7"
+  },
+  "dependencies": {}
+}

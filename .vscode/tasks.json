@@ -1,0 +1,17 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run App script",
+            "type": "shell",
+            "command": "/mnt/c/Program\\ Files/Adobe/Adobe\\ After\\ Effects\\ CC\\ 2018/Support\\ Files/AfterFX.exe",
+            "args": [
+                "-r",
+                "\"${workspaceFolder}\\dist\\app.js\""
+            ],
+            "problemMatcher": [],
+        }
+    ]
+}
