@@ -1,17 +1,17 @@
 # AfterEffects with TypeScript
 
-## 環境
-* OS - Windows10, WSL
-* エディタ - VSCode
-* NodeJS - v8.9.4 ※特に意味なし
-* AfterEffects2018
+## Environment
+* OS - Windows 10, WSL
+* Editor - VSCode
+* NodeJS - v8.9.4 (not particularly necessary)
+* AfterEffects 2018
 
-## package.sjon
+## package.json
 
-最低限以下のものをインストールしておく。
+At a minimum, install the following:
 
-* types-for-adobe: 　PhotoshopやAfterEffects等で使用する型の型定義一式がある
-* parcel: コンパイルしたソースをバンドルしてくれるもの。Webpackですらもう面倒になってきた人に超おすすめ
+* types-for-adobe: A set of type definitions for use with Photoshop, AfterEffects, etc.
+* parcel: A tool that bundles compiled source code. Highly recommended for those who find Webpack cumbersome.
 
 ```javascript:package.json
   "devDependencies": {
@@ -23,16 +23,15 @@
 
 ## tsconfig.json
 
-tsconfig.jsonはこんな感じでしょうか。
-ありきたりですが、ソースはsrc, 出力先はdistにしています。
+tsconfig.json is as follows.
+It's pretty standard, with the source in src and the output in dist.
 
-重要なのは、
+The important parts are:
 
 * target: es3
 * noLib: true
 
-にする、ってことろでしょうか。
-ExtendScript自体はes3レベルなのと、アプリのオブジェクトなどは実際のJSのソースがあるわけではないので noLibをfalseにしておかないとコンパイルでコケてしまいします。
+Setting the target to es3 is necessary because ExtendScript itself is at the es3 level, and setting noLib to false will cause compilation errors because the application objects do not have actual JS sources.
 
 ```javascript:tscofnig.json
 {
@@ -51,10 +50,10 @@ ExtendScript自体はes3レベルなのと、アプリのオブジェクトな�
 }
 ```
 
-## とりあえず アラートを出してみる
+## Let's Show an Alert
 
-とりあえず、AfterEffectsのビルド名をアラートで出してみたいと思います。
-コードはこんな感じになります。ちゃんとコード補完が効くのがわかるかと思います。
+Let's try displaying the AfterEffects build name in an alert.
+The code looks like this. You can see that code completion works properly.
 
 ```typescript:src/app.ts
 /// <reference types="types-for-adobe/AfterEffects/2018" />
@@ -70,20 +69,20 @@ main.showBuildname();
 
 ```
 
-### parcelでコンパイル&バンドル
+### Compile & Bundle with Parcel
 
-まだファイルは1つしかありませんが、このあとunderscore(諸事情でlodashではありません)などの外部ライブラリを使ったり、自身でもモジュールを書いたりすることになると思うので、やはり何らかのバンドルする仕組みは必要になってくると思います。従来であればWebpackを使っていましたが、毎度毎度初回に設定ファイルを書くのが面倒ということと、なにやら最近勢いがあるparcelなるものを使ってみようと思います。
+Although there is currently only one file, I think it will be necessary to have some kind of bundling mechanism after using external libraries like underscore (for various reasons, lodash is not used here) or writing our own modules. Traditionally, I have used Webpack, but setting up the configuration file every time is troublesome, so I decided to try parcel, which seems to be gaining momentum recently.
 ```
 $ ./nodo_modules/.bin/parcel watch src/app.ts
 ```
-parcelはデフォルトで簡易HTTPサーバーを起動するので、watch オプションを付けてバンドルだけするようにしています。
-dist配下に __app.js__, __app.map__ ができました。
+Parcel starts a simple HTTP server by default, so I am using the watch option to bundle only.
+__app.js__ and __app.map__ were created under dist.
 
-以降はファイルに変更があるたびに自動的に差分コンパイル＆バンドルが実行されます。しかもWebpackに比べてエラく爆速です。
+From now on, differential compilation & bundling will be executed automatically every time there is a change in the file. And it's much faster than Webpack.
 
 
-## AfterEffects起動タスクを書いてみる
-スクリプトの起動方法については、標準的な方法と取れば、AfterEffectsのメニューからスクリプトを読み込んで実行、と言うかたちになりますが、実際の開発でトライ＆エラーの過程でそんなこといちいちやってられないと思いますので、VSCodeのタスクを定義してしまいます。
+## Write a Task to Run AfterEffects
+The standard way to run scripts is to load and execute them from the AfterEffects menu, but during development, you can't afford to do this every time for trial and error, so I defined a task in VSCode.
 
 ```javascript:.vscode/tasks.json
 {
@@ -97,7 +96,7 @@ dist配下に __app.js__, __app.map__ ができました。
             "command": "/mnt/c/Program\\ Files/Adobe/Adobe\\ After\\ Effects\\ CC\\ 2018/Support\\ Files/AfterFX.exe",
             "args": [
                 "-r",
-                "\"${workspaceFolder}\\dist\\app.js\""
+                ""${workspaceFolder}\\dist\\app.js""
             ],
             "problemMatcher": [],
         }
@@ -105,31 +104,30 @@ dist配下に __app.js__, __app.map__ ができました。
 }
 ```
 
-私はVSCodeのターミナルとして、WSL(旧BashOnWindows)を使用しているため、AfterEffectsのパスが /mnt/c... とかになっていますがこの辺は適宜自分の環境に合わせて書き直してください。
+I am using WSL (formerly BashOnWindows) as the terminal in VSCode, so the path to AfterEffects is /mnt/c..., but please adjust this according to your environment.
 
-もしくは、同じくVSCodeのエクステンションで、__AE Script Runner__ と言うものがあります。そちらはVSCodeで今現在開いているスクリプトをAfterEffectsで実行するための拡張機能です。今回の場合はparcelで __dist/app.js__ ファイルに必ずバンドルされて、実際にはこのファイルしか実行しないので、どこからでもAfterEffectsで実行できるようにタスクを定義しています。
+Alternatively, there is an extension for VSCode called __AE Script Runner__. This extension allows you to run the script you are currently editing in VSCode in AfterEffects. In this case, since the file is always bundled into __dist/app.js__ by parcel, I defined a task to run this file from anywhere in AfterEffects.
 
-実行するとこんな感じでアラートが表示されるかと思います。
+When you run it, an alert should appear like this.
 
 ![./docs/images/001.png](./docs/images/001.png)
 
-#＃ ES5にしたい
+# ES5
+ExtendScript is at the es3 level, so there are quite a few things you can't use, such as convenient array methods added in es5. This can be resolved with the ExtendScript-specific es5-shim. __Note that it is not es5-shim__.
 
-ExtendScirptはes3レベルなので、es5で追加された配列への便利なメソッドとか使えないものが結構あります。これについては、ExtendScript用のes5-shimで解決できました。 __es5-shimではないので注意してください__。
-
-package.jsonに "extendscript-es5-shim-ts": "~0.0.1" を追記して、npm install を実行します。
+Add "extendscript-es5-shim-ts": "~0.0.1" to package.json and run npm install.
 
 ```javascript:pacakge.json
   "devDependencies": {
     "parcel-bundler": "~1.6.1",
     "types-for-adobe": "github:pravdomil/types-for-adobe",
     "typescript": "~2.7.2",
-    "extendscript-es5-shim-ts": "~0.0.1" // <ー 追加
+    "extendscript-es5-shim-ts": "~0.0.1" // <ー Add
   },
 ```
 
-src/app.tsファイル内で、Array.forEachを使ってみます。
-"extendscript-es5-shim-ts"をインポートするのを忘れないでください。
+In the src/app.ts file, let's try using Array.forEach.
+Don't forget to import "extendscript-es5-shim-ts".
 
 ```typescript:src/app.ts
 /// <reference types="types-for-adobe/AfterEffects/2018" />
@@ -149,11 +147,11 @@ main.showBuildname();
 
 ```
 
-## underscoreを使ってみる
+## Using Underscore
 
-必要ないかもしれませんが、あると何かと便利なので追加してみます。
+It might not be necessary, but it's convenient to add it.
 
-__lodash__ はObject.definePropertyとかの問題で無理でした、、、。
+__lodash__ did not work due to issues with Object.defineProperty...
 
 ```javascript:package.json
   "devDependencies": {
@@ -166,8 +164,7 @@ __lodash__ はObject.definePropertyとかの問題で無理でした、、、。
   },
 ```
 
-npm install を実行してから、src/app.ts で underscoreを使ってみます。
-
+Run npm install, then use underscore in src/app.ts.
 
 ```typescript:src/app.ts
 /// <reference types="types-for-adobe/AfterEffects/2018" />
@@ -187,9 +184,9 @@ const main = new Main();
 main.showBuildname();
 ```
 
-## UI部品を使ってみる
+## Using UI Components
 
-一応他のAfterEffects、というかExtendScriptのライブラリも使ったコードとして、テキストボックスとボタンあたりをやってみます。
+As an example of using other AfterEffects, or rather ExtendScript libraries, let's try creating a textbox and a button.
 
 ```typescript:src/app.ts
 /// <reference types="types-for-adobe/AfterEffects/2018" />
@@ -215,7 +212,8 @@ main.showSample();
 
 ![./docs/images/002.png](./docs/images/002.png)
 
-## まとめ
+## Conclusion
 
-こんな感じでTypeScriptとparcelを使えば、ExtendScriptアプリもスッキリ書けそうです。
-私自身はAdobe製品は全くド素人なので、もっとこうすればいいよ的なことがありましたらコメントください！
+Using TypeScript and parcel, ExtendScript applications can be written clearly.
+I myself am a complete novice with Adobe products, so if there are better ways to do something, please leave a comment!
+
