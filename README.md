@@ -1,5 +1,7 @@
 # AfterEffects with TypeScript
 
+[日本語のREADMEはこちら](./README.ja.md)
+
 ## Environment
 * OS - Windows 10, WSL
 * Editor - VSCode
